@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Manga {
+  id              String  @id @unique @default(cuid())
+  title           String?
+  titles          Json
+  synonyms        String[]
+  anilistId       Int     @unique
+  malId           Int?    @unique
+  mangadexId      String?
+  mangaseeId      String?
+  mangapillId     String?
+  mangahereId     String?
+  mangafoxId      String?
+  manganatoId     String?
+  mangareaderId   String?
+  mangaplusId     String?
+  comickId        String?
+  anilist         Json?
+  kitsu           Json?
+  Title       Title[]
+}
+
+model Title {
+  id      String  @id @unique @default(cuid())
+  english String?
+  native  String?
+  romaji  String?
+  Manga   Manga?  @relation(fields: [mangaId], references: [id])
+  mangaId String?
+}
