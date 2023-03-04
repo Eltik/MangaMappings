@@ -7,3 +7,5 @@ export declare const getMappings: (anilistId: number) => Promise<import(".prisma
     message: string;
     error?: undefined;
 } | null>;
+export declare const exportDatabase: () => Promise<void>;
+export declare const clearDatabase: () => Promise<void>;

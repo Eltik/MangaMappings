@@ -12,6 +12,8 @@ import {
 } from './mappings';
 import chalk from 'chalk';
 import { Prisma } from '@prisma/client';
+import { join } from 'path';
+import { writeFileSync } from 'fs';
 
 export const init = async () => {
   await prisma.$executeRaw`
@@ -122,7 +124,7 @@ export const getMappings = async (anilistId: number) => {
           mangaplusId:
             manga.idMal !== undefined && malsync && malsync.MangaPlus ? (Object.values(malsync.MangaPlus)[0] as any).identifier : undefined,
           mangareaderId:
-            manga.idMal !== undefined && malsync && malsync.MangaReader ? (Object.values(malsync.Mangareader)[0] as any).identifier : undefined,
+            manga.idMal !== undefined && malsync && malsync.MangaReader ? (Object.values(malsync.MangaReader)[0] as any).identifier : undefined,
           comickId:
             manga.idMal !== undefined && malsync && malsync.Comick ?
             (Object.values(malsync.Comick)[0] as any).url.split('https://comick.app')[1] :
@@ -162,9 +164,20 @@ export const getMappings = async (anilistId: number) => {
   }
 };
 
-//(async() => {
-//	await prisma.anime.deleteMany()
-//	await getMappings(21)
-//	console.log(await getMappings(21))
+export const exportDatabase = async() => {
+  let data:any = [];
+  const dateAsString = new Date(Date.now()).toISOString().replace(/:/g, "-");
+  const toExport = join(__dirname, "../../" + dateAsString + "-export.json");
 
-//})()
+  const manga = await prisma.manga.findMany();
+  data = {
+      manga
+  };
+  writeFileSync(toExport, JSON.stringify(data, null, 4), "utf8");
+  console.log(chalk.whiteBright("Exported database to ") + chalk.blueBright(toExport) + chalk.white("."));
+}
+
+export const clearDatabase = async() => {
+  await prisma.manga.deleteMany();
+  console.log(chalk.whiteBright("Cleared database."));
+}

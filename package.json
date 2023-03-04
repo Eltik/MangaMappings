@@ -10,7 +10,10 @@
     "build:db": "npm run db:generate && npm run db:push && npm run db:validate",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:validate": "npx prisma validate"
+    "db:validate": "npx prisma validate",
+    "crawl": "node ./scripts/crawl.js",
+    "export": "node ./scripts/export.js",
+    "clear": "node ./scripts/clear.js"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
@@ -24,7 +27,7 @@
     "@fastify/cors": "^8.2.0",
     "@prisma/client": "^4.9.0",
     "@types/string-similarity": "^4.0.0",
-    "axios": "^1.2.2",
+    "axios": "^0.27.2",
     "chalk": "4.1.2",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.3",

@@ -3,12 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMappings = exports.search = exports.init = void 0;
+exports.clearDatabase = exports.exportDatabase = exports.getMappings = exports.search = exports.init = void 0;
 const client_1 = require("./db/client");
 const axios_1 = __importDefault(require("axios"));
 const mappings_1 = require("./mappings");
 const chalk_1 = __importDefault(require("chalk"));
 const client_2 = require("@prisma/client");
+const path_1 = require("path");
+const fs_1 = require("fs");
 const init = async () => {
     await client_1.prisma.$executeRaw `
       CREATE EXTENSION IF NOT EXISTS "pg_trgm";
@@ -106,7 +108,7 @@ const getMappings = async (anilistId) => {
                 mangafoxId: manga.idMal !== undefined && malsync && malsync.MangaFox ? Object.values(malsync.MangaFox)[0].identifier : undefined,
                 manganatoId: manga.idMal !== undefined && malsync && malsync.MangaNato ? Object.values(malsync.MangaNato)[0].identifier : undefined,
                 mangaplusId: manga.idMal !== undefined && malsync && malsync.MangaPlus ? Object.values(malsync.MangaPlus)[0].identifier : undefined,
-                mangareaderId: manga.idMal !== undefined && malsync && malsync.MangaReader ? Object.values(malsync.Mangareader)[0].identifier : undefined,
+                mangareaderId: manga.idMal !== undefined && malsync && malsync.MangaReader ? Object.values(malsync.MangaReader)[0].identifier : undefined,
                 comickId: manga.idMal !== undefined && malsync && malsync.Comick ?
                     Object.values(malsync.Comick)[0].url.split('https://comick.app')[1] :
                     await (0, mappings_1.comick)((_e = manga.title.english) !== null && _e !== void 0 ? _e : manga.title.romaji),
@@ -137,9 +139,21 @@ const getMappings = async (anilistId) => {
     }
 };
 exports.getMappings = getMappings;
-//(async() => {
-//	await prisma.anime.deleteMany()
-//	await getMappings(21)
-//	console.log(await getMappings(21))
-//})()
+const exportDatabase = async () => {
+    let data = [];
+    const dateAsString = new Date(Date.now()).toISOString().replace(/:/g, "-");
+    const toExport = (0, path_1.join)(__dirname, "../../" + dateAsString + "-export.json");
+    const manga = await client_1.prisma.manga.findMany();
+    data = {
+        manga
+    };
+    (0, fs_1.writeFileSync)(toExport, JSON.stringify(data, null, 4), "utf8");
+    console.log(chalk_1.default.whiteBright("Exported database to ") + chalk_1.default.blueBright(toExport) + chalk_1.default.white("."));
+};
+exports.exportDatabase = exportDatabase;
+const clearDatabase = async () => {
+    await client_1.prisma.manga.deleteMany();
+    console.log(chalk_1.default.whiteBright("Cleared database."));
+};
+exports.clearDatabase = clearDatabase;
 //# sourceMappingURL=getMappings.js.map
